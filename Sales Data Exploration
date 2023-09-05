@@ -1,0 +1,99 @@
+SELECT SUM(total_price) AS total_revenue FROM pizza_sales
+ 
+
+SELECT SUM (total_price) / COUNT(DISTINCT order_id) AS ave_order_value FROM pizza_sales
+ 
+
+SELECT SUM(quantity) AS total_pizza_sold FROM pizza_sales
+ 
+
+SELECT COUNT(DISTINCT order_id) AS total_orders FROM pizza_sales
+ 
+
+SELECT CAST(CAST(SUM(quantity) AS DECIMAL(10,2)) / 
+CAST(COUNT(DISTINCT order_id) AS DECIMAL(10,2)) AS DECIMAL(10,2)) AS ave_pizza_per_order FROM pizza_sales
+ 
+
+
+
+
+
+CHART REQUIREMENT
+Daily trends of total order 
+SELECT o.*,
+
+CASE
+	WHEN o.order_days = 0 THEN 'sunday'
+	WHEN o.order_days = 1 THEN 'monday'
+	WHEN o.order_days = 2 THEN 'tuesday'
+	WHEN o.order_days = 3 THEN 'wednesday'
+	WHEN o.order_days = 4 THEN 'thursday'
+	WHEN o.order_days = 5 THEN 'friday'
+	WHEN o.order_days = 6 THEN 'saturday'
+END AS days_of_the_week
+FROM 
+(
+	SELECT EXTRACT(DOW FROM order_date) AS order_days, COUNT(DISTINCT order_id) AS total_orders 
+	FROM pizza_sales
+	GROUP BY EXTRACT(DOW FROM order_date)
+) o
+ 
+
+
+
+
+Monthly trends of total orders
+SELECT m.*,
+
+CASE
+	WHEN m.order_days = 1 THEN 'january'
+	WHEN m.order_days = 2 THEN 'febuary'
+	WHEN m.order_days = 3 THEN 'march'
+	WHEN m.order_days = 4 THEN 'april'
+	WHEN m.order_days = 5 THEN 'may'
+	WHEN m.order_days = 6 THEN 'june'
+	WHEN m.order_days = 7 THEN 'july'
+	WHEN m.order_days = 8 THEN 'august'
+	WHEN m.order_days = 9 THEN 'september'
+	WHEN m.order_days = 10 THEN 'october'
+	WHEN m.order_days = 11 THEN 'november'
+	WHEN m.order_days = 12 THEN 'december'
+END AS months_of_the_year
+FROM 
+(
+	SELECT EXTRACT(MONTH FROM order_date) AS order_days, COUNT(DISTINCT order_id) AS total_orders 
+	FROM pizza_sales
+	GROUP BY EXTRACT(MONTH FROM order_date)
+) m
+ 
+SELECT pizza_category, SUM(total_price) AS total_sales, CAST(SUM(total_price) * 100 / (SELECT SUM(total_price) FROM pizza_sales)  AS DECIMAL(10,2)) AS PCT 
+FROM pizza_sales
+GROUP BY pizza_category
+ 
+
+SELECT pizza_size, SUM(total_price) AS total_sales, CAST(SUM(total_price) * 100 / (SELECT SUM(total_price) FROM pizza_sales)  AS DECIMAL(10,2)) AS PSIZE 
+FROM pizza_sales
+GROUP BY pizza_size
+ 
+
+
+
+
+
+
+
+WITH x1 AS 
+	(SELECT pizza_name, SUM(total_price) AS total_rev 
+	FROM pizza_sales
+	GROUP BY pizza_name
+	ORDER BY total_rev DESC),
+x2 AS 
+	(SELECT *, RANK() OVER(ORDER BY total_rev DESC) FROM x1
+	)
+SELECT * FROM x2
+WHERE rank <= 5
+ 
+
+WHERE EXTRACT(MONTH FROM order_date) = 1
+WHERE EXTRACT(quarter FROM order_date) = 1
+
