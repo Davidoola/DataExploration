@@ -1,15 +1,19 @@
+/*
+Sales Data Exploration
+*/
+-- Total Revenue
 SELECT SUM(total_price) AS total_revenue FROM pizza_sales
  
-
+-- Average Order Values
 SELECT SUM (total_price) / COUNT(DISTINCT order_id) AS ave_order_value FROM pizza_sales
  
-
+-- Total Pizza Sold
 SELECT SUM(quantity) AS total_pizza_sold FROM pizza_sales
  
-
+-- Total Orders
 SELECT COUNT(DISTINCT order_id) AS total_orders FROM pizza_sales
  
-
+-- Average Pizza Sold per Order
 SELECT CAST(CAST(SUM(quantity) AS DECIMAL(10,2)) / 
 CAST(COUNT(DISTINCT order_id) AS DECIMAL(10,2)) AS DECIMAL(10,2)) AS ave_pizza_per_order FROM pizza_sales
  
@@ -19,7 +23,7 @@ CAST(COUNT(DISTINCT order_id) AS DECIMAL(10,2)) AS DECIMAL(10,2)) AS ave_pizza_p
 
 
 CHART REQUIREMENT
-Daily trends of total order 
+-- Daily trends of total order 
 SELECT o.*,
 
 CASE
@@ -42,7 +46,7 @@ FROM
 
 
 
-Monthly trends of total orders
+-- Monthly trends of total orders
 SELECT m.*,
 
 CASE
@@ -64,13 +68,15 @@ FROM
 	SELECT EXTRACT(MONTH FROM order_date) AS order_days, COUNT(DISTINCT order_id) AS total_orders 
 	FROM pizza_sales
 	GROUP BY EXTRACT(MONTH FROM order_date)
+	-- WHERE EXTRACT(MONTH FROM order_date) = 1
 ) m
- 
+
+-- Percentage of Sales by Category
 SELECT pizza_category, SUM(total_price) AS total_sales, CAST(SUM(total_price) * 100 / (SELECT SUM(total_price) FROM pizza_sales)  AS DECIMAL(10,2)) AS PCT 
 FROM pizza_sales
 GROUP BY pizza_category
  
-
+-- Percentage of Salse by Size
 SELECT pizza_size, SUM(total_price) AS total_sales, CAST(SUM(total_price) * 100 / (SELECT SUM(total_price) FROM pizza_sales)  AS DECIMAL(10,2)) AS PSIZE 
 FROM pizza_sales
 GROUP BY pizza_size
@@ -78,9 +84,7 @@ GROUP BY pizza_size
 
 
 
-
-
-
+-- Top 5 Best sellers 
 
 WITH x1 AS 
 	(SELECT pizza_name, SUM(total_price) AS total_rev 
@@ -94,6 +98,6 @@ SELECT * FROM x2
 WHERE rank <= 5
  
 
-WHERE EXTRACT(MONTH FROM order_date) = 1
-WHERE EXTRACT(quarter FROM order_date) = 1
+
+--WHERE EXTRACT(quarter FROM order_date) = 1
 
